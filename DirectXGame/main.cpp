@@ -53,6 +53,10 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	Microsoft::WRL::ComPtr<ID3DBlob> signatureBlob = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> errorBlob = nullptr;
 	HRESULT hr = D3D12SerializeRootSignature(&descriptionRootSignature, D3D_ROOT_SIGNATURE_VERSION_1, &signatureBlob, &errorBlob);
+	// if (FAILED(hr)) {
+	//	DebugText::GetInstance()->ConsolePrintf(reinterpret_cast<const char*>(errorBlob->GetBufferPointer()));
+	//	assert(false);
+	// }
 	//  バイナリを基に作成
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature = nullptr;
 	hr = dxCommon->GetDevice()->CreateRootSignature(0, signatureBlob->GetBufferPointer(), signatureBlob->GetBufferSize(), IID_PPV_ARGS(&rootSignature));
@@ -79,40 +83,48 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	// 塗りつぶしモードをソリッドにする(ワイヤーフレームならD3D12_FILL_MODE_WIREFRAME)
 	rasterizerDesc.FillMode = D3D12_FILL_MODE_SOLID;
 
-	// コンパイル済みのShader、エラー次情報の格納場所の用意
-	Microsoft::WRL::ComPtr<ID3DBlob> vsBlob = nullptr; // 頂点シェーダオブジェクト
-	Microsoft::WRL::ComPtr<ID3DBlob> psBlob = nullptr; // ピクセルシェーダオブジェクト
-	// 頂点シェーダの読み込みとコンパイル
-	std::wstring vsFile = L"Resources/Shaders/TestVS.hlsl";
-	hr = D3DCompileFromFile(
-	    vsFile.c_str(),                                  // シェーダファイル名
-	    nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE,      // インクルード可能になる
-	    "main", "vs_5_0",                                // エントリーポイント名、シェーダモデル
-	    D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION, // デバッグ用設定
-	    0, &vsBlob, &errorBlob);
-	if (FAILED(hr)) {
-		DebugText::GetInstance()->ConsolePrintf(std::system_category().message(hr).c_str());
-		if (errorBlob) {
-			DebugText::GetInstance()->ConsolePrintf(reinterpret_cast<const char*>(errorBlob->GetBufferPointer()));
-			assert(false);
-		}
-	}
-	// ピクセルシェーダの読み込みとコンパイル
-	std::wstring psFile = L"Resources/Shaders/TestPS.hlsl";
-	hr = D3DCompileFromFile(
-	    psFile.c_str(), // シェーダファイル名
-	    nullptr,
-	    D3D_COMPILE_STANDARD_FILE_INCLUDE,               // インクルード可能になる
-	    "main", "ps_5_0",                                // エントリーポイント名、シェーダモデル
-	    D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION, // デバッグ用設定
-	    0, &psBlob, &errorBlob);
-	if (FAILED(hr)) {
-		DebugText::GetInstance()->ConsolePrintf(std::system_category().message(hr).c_str());
-		if (errorBlob) {
-			DebugText::GetInstance()->ConsolePrintf(reinterpret_cast<const char*>(errorBlob->GetBufferPointer()));
-			assert(false);
-		}
-	}
+	//// コンパイル済みのShader、エラー次情報の格納場所の用意
+	// Microsoft::WRL::ComPtr<ID3DBlob> vsBlob = nullptr; // 頂点シェーダオブジェクト
+	// Microsoft::WRL::ComPtr<ID3DBlob> psBlob = nullptr; // ピクセルシェーダオブジェクト
+	//// 頂点シェーダの読み込みとコンパイル
+	// std::wstring vsFile = L"Resources/Shaders/TestVS.hlsl";
+	// hr = D3DCompileFromFile(
+	//     vsFile.c_str(),                                  // シェーダファイル名
+	//     nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE,      // インクルード可能になる
+	//     "main", "vs_5_0",                                // エントリーポイント名、シェーダモデル
+	//     D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION, // デバッグ用設定
+	//     0, &vsBlob, &errorBlob);
+	// if (FAILED(hr)) {
+	//	DebugText::GetInstance()->ConsolePrintf(std::system_category().message(hr).c_str());
+	//	if (errorBlob) {
+	//		DebugText::GetInstance()->ConsolePrintf(reinterpret_cast<const char*>(errorBlob->GetBufferPointer()));
+	//		assert(false);
+	//	}
+	// }
+	//// ピクセルシェーダの読み込みとコンパイル
+	// std::wstring psFile = L"Resources/Shaders/TestPS.hlsl";
+	// hr = D3DCompileFromFile(
+	//     psFile.c_str(), // シェーダファイル名
+	//     nullptr,
+	//     D3D_COMPILE_STANDARD_FILE_INCLUDE,               // インクルード可能になる
+	//     "main", "ps_5_0",                                // エントリーポイント名、シェーダモデル
+	//     D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION, // デバッグ用設定
+	//     0, &psBlob, &errorBlob);
+	// if (FAILED(hr)) {
+	//	DebugText::GetInstance()->ConsolePrintf(std::system_category().message(hr).c_str());
+	//	if (errorBlob) {
+	//		DebugText::GetInstance()->ConsolePrintf(reinterpret_cast<const char*>(errorBlob->GetBufferPointer()));
+	//		assert(false);
+	//	}
+	// }
+
+	// 頂点シェイダーの読み込みとコンパイル
+	Microsoft::WRL::ComPtr<ID3DBlob> vsBlob = CompileShader(L"Resources/Shaders/TestVS.hlsl", "vs_5_0");
+	assert(vsBlob != nullptr);
+	// ピクセルシェイダーの読み込みとコンパイル
+	Microsoft::WRL::ComPtr<ID3DBlob> psBlob = CompileShader(L"Resources/Shaders/TestPS.hlsl", "ps_5_0");
+	assert(psBlob != nullptr);
+
 	// PSO(PipelineStateObject)の作成 -----------
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateDesc{};
 	graphicsPipelineStateDesc.pRootSignature = rootSignature.Get();                       // RootSignature
