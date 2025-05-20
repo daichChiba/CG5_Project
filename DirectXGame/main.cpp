@@ -4,7 +4,6 @@
 
 using namespace KamataEngine;
 
-
 // シェイダーコンパイル関数
 // filePath: シェーダファイルのパス 例L"Resources/Shaders/TestVS.hlsl"
 // shaderModel: シェイダーモデル 例"vs_5_0"
