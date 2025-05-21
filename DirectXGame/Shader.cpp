@@ -91,8 +91,7 @@ void Shader::LoadDxc(const std::wstring& filePath, const std::wstring& shaderMod
 	Microsoft::WRL::ComPtr<IDxcBlobUtf8> shaderError = nullptr;
 	Microsoft::WRL::ComPtr<IDxcBlobWide> nameBlob = nullptr;
 	shaderResult->GetOutput(DXC_OUT_ERRORS, IID_PPV_ARGS(&shaderError), &nameBlob);
-	if (shaderError != nullptr) {
-
+	if (shaderError != nullptr && shaderError->GetStringLength() != 0) {
 		OutputDebugStringA(shaderError->GetStringPointer());
 		assert(false);
 	}
