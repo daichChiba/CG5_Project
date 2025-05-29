@@ -1,4 +1,5 @@
 #include "KamataEngine.h"
+#include "RootSignature.h"
 #include "Shader.h"
 //#include "d3dcompiler.h"
 #include <Windows.h>
@@ -21,18 +22,11 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	// DirectXCommonクラスが管理している、コマンドリストの取得
 	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList = dxCommon->GetCommandList();
 
-	// RootSignature作成-----------
-	// 構造体にデータを用意する
-	D3D12_ROOT_SIGNATURE_DESC descriptionRootSignature{};
-	descriptionRootSignature.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
-	Microsoft::WRL::ComPtr<ID3DBlob> signatureBlob = nullptr;
-	Microsoft::WRL::ComPtr<ID3DBlob> errorBlob = nullptr;
-	HRESULT hr = D3D12SerializeRootSignature(&descriptionRootSignature, D3D_ROOT_SIGNATURE_VERSION_1, &signatureBlob, &errorBlob);
+	// RootSignature生成-----------------
+	RootSignature rs;
+	rs.Create();
 
-	//  バイナリを基に作成
-	Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature = nullptr;
-	hr = dxCommon->GetDevice()->CreateRootSignature(0, signatureBlob->GetBufferPointer(), signatureBlob->GetBufferSize(), IID_PPV_ARGS(&rootSignature));
-	assert(SUCCEEDED(hr));
+	
 	// InputLayout
 	D3D12_INPUT_ELEMENT_DESC inputElementDescs[1] = {};
 	inputElementDescs[0].SemanticName = "POSITION";
@@ -67,7 +61,8 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
 	// PSO(PipelineStateObject)の作成 -----------
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateDesc{};
-	graphicsPipelineStateDesc.pRootSignature = rootSignature.Get();                       // RootSignature
+	graphicsPipelineStateDesc.pRootSignature =
+		rs.Get().Get();                       // RootSignature
 	graphicsPipelineStateDesc.InputLayout = inputLayoutDesc;                              // InputLayout
 	graphicsPipelineStateDesc.VS = {vs.GetDxcBlob()->GetBufferPointer(), vs.GetDxcBlob()->GetBufferSize()}; // VertexShader
 	graphicsPipelineStateDesc.PS = {ps.GetDxcBlob()->GetBufferPointer(), ps.GetDxcBlob()->GetBufferSize()}; // PixelShader
@@ -83,7 +78,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	graphicsPipelineStateDesc.SampleMask = D3D12_DEFAULT_SAMPLE_MASK;
 	// 準備は整ったので、PSOを作成する
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> pipelineState = nullptr;
-	hr = dxCommon->GetDevice()->CreateGraphicsPipelineState(&graphicsPipelineStateDesc, IID_PPV_ARGS(&pipelineState));
+	HRESULT hr = dxCommon->GetDevice()->CreateGraphicsPipelineState(&graphicsPipelineStateDesc, IID_PPV_ARGS(&pipelineState));
 	assert(SUCCEEDED(hr));
 
 	// 　VertexResourceの作成 -----------
@@ -141,7 +136,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		// ここに描画処理を記述する
 
 		// コマンドを積む
-		commandList->SetGraphicsRootSignature(rootSignature.Get()); // RootSignatureの設定
+		commandList->SetGraphicsRootSignature(rs.Get().Get()); // RootSignatureの設定
 		commandList->SetPipelineState(pipelineState.Get());         // PSOの設定をする
 		commandList->IASetVertexBuffers(0, 1, &vertexBufferView);   // VBVの設定をする
 		// トポロジの設定
