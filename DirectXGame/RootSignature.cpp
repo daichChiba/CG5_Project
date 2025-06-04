@@ -1,5 +1,6 @@
 #include "RootSignature.h"
 #include "KamataEngine.h"
+#include "PipelineState.h"
 
 using namespace KamataEngine;
 
@@ -30,8 +31,8 @@ void RootSignature::Create() {
 }
 
 Microsoft::WRL::ComPtr<ID3D12RootSignature> RootSignature::Get() {
-	return rootSignature_;
-}
+	return rootSignature_; }
+
 
 RootSignature::RootSignature() {
 }
