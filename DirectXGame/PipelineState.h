@@ -7,7 +7,7 @@ public:
 	// 初期化
 	void Create(D3D12_GRAPHICS_PIPELINE_STATE_DESC desc);
 	// ゲッター
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> Get();
+	ID3D12PipelineState* Get();
 
 	// コンストラクタ
 	PipelineState();

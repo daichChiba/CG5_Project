@@ -40,7 +40,7 @@ void SetupPipelineState(PipelineState& pipelineState, RootSignature& rs, Shader&
 
 	// PSO(PipelineStateObject)の作成 -----------
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateDesc{};
-	graphicsPipelineStateDesc.pRootSignature = rs.Get().Get();                                              // RootSignature
+	graphicsPipelineStateDesc.pRootSignature = rs.Get();                                              // RootSignature
 	graphicsPipelineStateDesc.InputLayout = inputLayoutDesc;                                                // InputLayout
 	graphicsPipelineStateDesc.VS = {vs.GetDxcBlob()->GetBufferPointer(), vs.GetDxcBlob()->GetBufferSize()}; // VertexShader
 	graphicsPipelineStateDesc.PS = {ps.GetDxcBlob()->GetBufferPointer(), ps.GetDxcBlob()->GetBufferSize()}; // PixelShader
@@ -100,28 +100,16 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
 	// 頂点データの準備
 	VertexData vertices[] = {
-	    {0.0f,  0.5f,  0.0f, 1.0f}, // 上
-	    {0.5f,  -0.5f, 0.0f, 1.0f}, // 右下
-	    {-0.5f, -0.5f, 0.0f, 1.0f}  // 左下
+	    {-1.0f, 1.0f,  0.0f, 1.0f}, // 左上
+	    {1.0f,  1.0f,  0.0f, 1.0f}, // 右上
+	    {-1.0f, -1.0f, 0.0f, 1.0f}, // 左下
+	    {1.0f,  -1.0f, 0.0f, 1.0f}, // 右下
 	};
 
-	// VertexBuffer(VertexResource, VertexResourceView)の生成
-	VertexBuffer vb;
-	vb.Create(sizeof(vertices), sizeof(vertices[0]));
-
-	// 頂点リソースにデータを書き込む -----------
-	VertexData* pGpuVertices = nullptr;
-	vb.Get()->Map(0, nullptr, reinterpret_cast<void**>(&pGpuVertices));
-
-	for (int i = 0; i < _countof(vertices); ++i) {
-		pGpuVertices[i] = vertices[i];
-	}
 	uint16_t indices[] = {
-	    0,
-	    1,
-	    2,
+	    0, 1, 2,
+		1, 3, 2,
 	};
-
 	// IndexBuffer(IndexResource, IndexResourceView)の生成
 	IndexBuffer ib;
 	ib.Create(sizeof(indices), sizeof(indices[0]));
@@ -132,6 +120,18 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
 	for (int i = 0; i < _countof(indices); ++i) {
 		pGpuIndices[i] = indices[i];
+	}
+
+	// VertexBuffer(VertexResource, VertexResourceView)の生成
+	VertexBuffer vb;
+	vb.Create(sizeof(vertices) * 3, sizeof(vertices[0]));
+
+	// 頂点リソースにデータを書き込む -----------
+	VertexData* pGpuVertices = nullptr;
+	vb.Get()->Map(0, nullptr, reinterpret_cast<void**>(&pGpuVertices));
+
+	for (int i = 0; i < _countof(vertices); ++i) {
+		pGpuVertices[i] = vertices[i];
 	}
 
 	// メインループ
@@ -148,8 +148,8 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		// ここに描画処理を記述する
 
 		// コマンドを積む
-		commandList->SetGraphicsRootSignature(rs.Get().Get());    // RootSignatureの設定
-		commandList->SetPipelineState(pipelineState.Get().Get()); // PSOの設定をする
+		commandList->SetGraphicsRootSignature(rs.Get());    // RootSignatureの設定
+		commandList->SetPipelineState(pipelineState.Get()); // PSOの設定をする
 		commandList->IASetVertexBuffers(0, 1, vb.GetView());      // VBVの設定をする
 		commandList->IASetIndexBuffer(ib.GetView());              // IBVの設定をする
 		// トポロジの設定

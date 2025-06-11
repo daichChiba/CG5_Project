@@ -8,7 +8,7 @@ public:
 	void Create(const UINT size, const UINT stride);
 
 	// ゲッター
-	Microsoft::WRL::ComPtr<ID3D12Resource> Get();               // 頂点バッファー
+	ID3D12Resource* Get();                // 頂点バッファー
 	D3D12_VERTEX_BUFFER_VIEW* GetView(); // 頂点バッファービュー
 
 	// コンストラクタ

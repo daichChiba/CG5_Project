@@ -8,7 +8,7 @@ public:
 	void Create();
 
 	// ゲッター
-	Microsoft::WRL::ComPtr<ID3D12RootSignature> Get();
+	ID3D12RootSignature* Get();
 
 
 	// コンストラクタ

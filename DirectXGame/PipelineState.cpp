@@ -16,8 +16,8 @@ void PipelineState::Create(D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineSt
 
 }
 
-Microsoft::WRL::ComPtr<ID3D12PipelineState> PipelineState::Get() {
-	return pipelineState_;
+ID3D12PipelineState* PipelineState::Get() {
+	return pipelineState_.Get();
 }
 
 PipelineState::PipelineState() {}

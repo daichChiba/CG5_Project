@@ -20,7 +20,7 @@ void IndexBuffer::Create(const UINT size, const UINT stride) {
 	// インデックスリソースの設定
 	D3D12_RESOURCE_DESC indexResourceDesc{};
 	indexResourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER; // バッファ
-	indexResourceDesc.Width = sizeof(Vector4) * 3;                 // リソースのサイズ。今回はVector4を3頂点分
+	indexResourceDesc.Width = size;                 // リソースのサイズ。今回はVector4を3頂点分
 	// バッファの場合はこれらは1にする決まり
 	indexResourceDesc.Height = 1;
 	indexResourceDesc.DepthOrArraySize = 1;
@@ -40,21 +40,21 @@ void IndexBuffer::Create(const UINT size, const UINT stride) {
 	indexBuffer_ = indexResource;
 
 	// インデックスリソースを作成する -----------
-	D3D12_INDEX_BUFFER_VIEW indexBufferView_{};
+	D3D12_INDEX_BUFFER_VIEW indexBufferView{};
 	// リソースの先頭アドレスから使う
-	indexBufferView_.BufferLocation = indexResource->GetGPUVirtualAddress();
+	indexBufferView.BufferLocation = indexResource->GetGPUVirtualAddress();
 	// 使用するリソースのサイズは頂点size分のサイズ
-	indexBufferView_.SizeInBytes = size; // 頂点リソースの全サイズ
+	indexBufferView.SizeInBytes = size; // 頂点リソースの全サイズ
 	// インデックスのフォーマット
-	indexBufferView_.Format = format;
+	indexBufferView.Format = format;
 
 	// IndexBufferViewを取っておく
-	indexBufferView_ = indexBufferView_;
+	indexBufferView_ = indexBufferView;
 }
 
 Microsoft::WRL::ComPtr<ID3D12Resource> IndexBuffer::Get() { return indexBuffer_; }
 
-D3D12_INDEX_BUFFER_VIEW* IndexBuffer::GetView() { return &indexBufferView; }
+D3D12_INDEX_BUFFER_VIEW* IndexBuffer::GetView() { return &indexBufferView_; }
 
 IndexBuffer::IndexBuffer() {}
 
