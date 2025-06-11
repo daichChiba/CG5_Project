@@ -3,6 +3,7 @@
 
 #include <cassert>
 #include <d3dx12.h>
+#include "IndexBuffer.h"
 
 using namespace KamataEngine;
 
@@ -54,8 +55,9 @@ Microsoft::WRL::ComPtr<ID3D12Resource> VertexBuffer::Get() {
 }
 
 D3D12_VERTEX_BUFFER_VIEW* VertexBuffer::GetView() {
-	return &vertexBufferView_;
-}
+	return &vertexBufferView_; }
+
+
 
 VertexBuffer::VertexBuffer() {}
 
