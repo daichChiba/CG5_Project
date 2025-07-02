@@ -286,7 +286,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	srvDescriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE; // PixelShaderから見える
 	srvDescriptorHeapDesc.NumDescriptors = 1;
 
-	hr = device_->CreateDescriptorHeap(&srvDescriptorHeapDesc, IID_PPV_ARGS(&srvDescriptorHeap_));
+	hr = device_->CreateDescriptorHeap(&srvDescriptorHeapDesc, IID_PPV_ARGS(srvDescriptorHeap_.GetAddressOf()));
 	assert(SUCCEEDED(hr));
 
 	// CPU側から見たHANDLE、GPU側から見たHANDLEを取得しておく
@@ -366,6 +366,14 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		// 指定した震度で画面全体をクリアにする
 		commandList->ClearDepthStencilView(dsvHandleCPU, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
+		// TransitionBarrierをもとに戻し、PixelShaderが扱えるようにする
+		barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;                      // TranslationBarrierの設定
+		barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;                           // フラグはNONEにしておく
+		barrier.Transition.pResource = renderTextureResource.Get();                 // バリアを張る対象のリソース
+		barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;        // 還移前
+		barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE; // 還移後
+		commandList->ResourceBarrier(1, &barrier);
+
 		// 描画開始
 		dxCommon->PreDraw();
 
@@ -377,7 +385,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		// トポロジの設定
 		commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		// 使用するディスクリプタヒープの設定
-		commandList->SetDescriptorHeaps(srvDescriptorHeap_->GetDesc().NumDescriptors, &srvDescriptorHeap_);
+		commandList->SetDescriptorHeaps(srvDescriptorHeap_->GetDesc().NumDescriptors, srvDescriptorHeap_.GetAddressOf());
 
 		// SRVのDescripterTableの先頭を設定※0はrootParameter[0]である
 		commandList->SetGraphicsRootDescriptorTable(0, srvHandleGPU);
