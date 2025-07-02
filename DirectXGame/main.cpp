@@ -4,6 +4,7 @@
 #include "RootSignature.h"
 #include "Shader.h"
 #include "VertexBuffer.h"
+#include "WorldTransformEx.h"
 // #include "d3dcompiler.h"
 #include <Windows.h>
 
@@ -318,6 +319,18 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	for (int i = 0; i < _countof(vertices); ++i) {
 		pGpuVertices[i] = vertices[i];
 	}
+	// アプリで利用する3Dモデル=====================================================
+	// 被写体の準備
+	Model* model = Model::CreateFromOBJ("terrain");
+
+	WorldTransformEx worldtransform;
+	worldtransform.Initialize();
+	worldtransform.scale_ = Vector3(1.0f, 1.0f, 1.0f);
+
+	// カメラの準備
+	Camera camera;
+	camera.Initialize();
+	camera.translation_ = Vector3(0.0f, 1.0f, 0.0f);
 
 	// メインループ
 	while (true) {
@@ -325,6 +338,13 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		if (Update()) {
 			break;
 		}
+
+		// world変換行列の定数バッファへの転送
+		worldtransform.rotation_.y += 0.005f;//適当な回転角度(ラジアン)
+		worldtransform.UpdateMatrix();
+
+		//cameraの更新と定数バッファへの転送
+		camera.UpdateMatrix();
 
 		// ここに描画処理を記述する
 
@@ -366,6 +386,11 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		// 指定した震度で画面全体をクリアにする
 		commandList->ClearDepthStencilView(dsvHandleCPU, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
+		// 描画
+		Model::PreDraw(commandList.Get());
+		model->Draw(worldtransform, camera);
+		Model::PostDraw();
+
 		// TransitionBarrierをもとに戻し、PixelShaderが扱えるようにする
 		barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;                      // TranslationBarrierの設定
 		barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;                           // フラグはNONEにしておく
@@ -373,6 +398,8 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;        // 還移前
 		barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE; // 還移後
 		commandList->ResourceBarrier(1, &barrier);
+
+
 
 		// 描画開始
 		dxCommon->PreDraw();
@@ -397,6 +424,8 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		// 描画終了
 		dxCommon->PostDraw();
 	}
+
+	delete model;
 
 	// エンジンの終了処理
 	Finalize();
