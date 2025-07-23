@@ -170,7 +170,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
 	// ピクセルシェイダーの読み込みとコンパイル
 	Shader ps;
-	ps.LoadDxc(L"Resources/shaders/TestPS.hlsl", L"ps_6_0");
+	ps.LoadDxc(L"Resources/shaders/vignettePS.hlsl", L"ps_6_0");
 	assert(ps.GetDxcBlob() != nullptr);
 
 	PipelineState pipelineState;
