@@ -1,8 +1,8 @@
 #pragma once
 
-#include <math\Vector2.h>
 #include <Windows.h>
 #include <array>
+#include <math\Vector2.h>
 #include <vector>
 #include <wrl.h>
 

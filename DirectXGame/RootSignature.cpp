@@ -1,6 +1,7 @@
 #include "RootSignature.h"
 #include "KamataEngine.h"
 #include "PipelineState.h"
+#include <cassert>
 
 using namespace KamataEngine;
 
@@ -50,10 +51,13 @@ void RootSignature::Create() {
 
 	Microsoft::WRL::ComPtr<ID3DBlob> signatureBlob = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> errorBlob = nullptr;
-	HRESULT hr = D3D12SerializeRootSignature(&descriptionRootSignature, D3D_ROOT_SIGNATURE_VERSION_1, &signatureBlob, &errorBlob);
+	[[maybe_unused]] HRESULT hr = D3D12SerializeRootSignature(&descriptionRootSignature, D3D_ROOT_SIGNATURE_VERSION_1, &signatureBlob, &errorBlob);
 	if (FAILED(hr)) {
 		DebugText::GetInstance()->ConsolePrintf(reinterpret_cast<char*>(errorBlob->GetBufferPointer()));
 		assert(false);
+
+
+
 	}
 
 	//  バイナリを基に作成

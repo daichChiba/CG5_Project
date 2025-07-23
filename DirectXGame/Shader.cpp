@@ -5,6 +5,8 @@
 #include <dxcapi.h>
 #pragma comment(lib, "dxcompiler.lib") // d3dcompiler.libをリンクする
 
+#include <cassert>
+
 using namespace KamataEngine;
 
 void Shader::Load(const std::wstring& filePath, const std::wstring& shaderModel) {
@@ -17,11 +19,11 @@ void Shader::Load(const std::wstring& filePath, const std::wstring& shaderModel)
 	Microsoft::WRL::ComPtr<ID3DBlob> shaderBlob = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> errorBlob = nullptr;
 	HRESULT hr = D3DCompileFromFile(
-		filePath.c_str(),                                // シェーダファイル名
-		nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE,      // インクルード可能になる
-		"main", mdShaderModel.c_str(),                   // エントリーポイント名、シェーダモデル
-		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION, // デバッグ用設定
-		0, &shaderBlob, &errorBlob);
+	    filePath.c_str(),                                // シェーダファイル名
+	    nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE,      // インクルード可能になる
+	    "main", mdShaderModel.c_str(),                   // エントリーポイント名、シェーダモデル
+	    D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION, // デバッグ用設定
+	    0, &shaderBlob, &errorBlob);
 	// エラーが発生した場合、止める
 	if (FAILED(hr)) {
 		if (errorBlob) {
@@ -38,7 +40,7 @@ void Shader::LoadDxc(const std::wstring& filePath, const std::wstring& shaderMod
 	static Microsoft::WRL::ComPtr<IDxcCompiler3> dxcCompiler = nullptr;
 	static Microsoft::WRL::ComPtr<IDxcIncludeHandler> includeHandler = nullptr;
 
-	HRESULT hr;
+	[[maybe_unused]] HRESULT hr;
 	if (dxcUtils == nullptr) {
 		hr = DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(&dxcUtils));
 		assert(SUCCEEDED(hr)); // うまくいかなかった場合は起動できない
@@ -65,24 +67,24 @@ void Shader::LoadDxc(const std::wstring& filePath, const std::wstring& shaderMod
 	//	2.	Compileする
 	//		Compileに必要なコンパイルオプションの準備
 	LPCWSTR arguments[] = {
-		filePath.c_str(), // コンパイル対象のhlslファイル名
-		L"-E",
-		L"main", // エントリーポイントの指定。基本的にmain以外にはしない
-		L"-T",
-		shaderModel.c_str(), // ShaderProfileの設定
-		L"-Zi",
-		L"-Qembed_debug", // デバッグ情報を埋め込む
-		L"-Od",           // 最適化を外しておく
-		L"-Zpc",          // メモリレイアウトは行優先
+	    filePath.c_str(), // コンパイル対象のhlslファイル名
+	    L"-E",
+	    L"main", // エントリーポイントの指定。基本的にmain以外にはしない
+	    L"-T",
+	    shaderModel.c_str(), // ShaderProfileの設定
+	    L"-Zi",
+	    L"-Qembed_debug", // デバッグ情報を埋め込む
+	    L"-Od",           // 最適化を外しておく
+	    L"-Zpc",          // メモリレイアウトは行優先
 	};
 	//	実際にShaderをCompileする
 	Microsoft::WRL::ComPtr<IDxcResult> shaderResult = nullptr;
 	hr = dxcCompiler->Compile(
-		&shaderSourceBuffer,        // 読み込んだファイル
-		arguments,                  // コンパイルオプション
-		_countof(arguments),        // コンパイルオプションの数
-		includeHandler.Get(),       // includeが含まれた諸々
-		IID_PPV_ARGS(&shaderResult) // コンパイル結果
+	    &shaderSourceBuffer,        // 読み込んだファイル
+	    arguments,                  // コンパイルオプション
+	    _countof(arguments),        // コンパイルオプションの数
+	    includeHandler.Get(),       // includeが含まれた諸々
+	    IID_PPV_ARGS(&shaderResult) // コンパイル結果
 	);
 	// コンパイルエラーではなくdxcが起動できないなど致命的な状況
 	assert(SUCCEEDED(hr));

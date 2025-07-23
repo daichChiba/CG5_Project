@@ -29,7 +29,7 @@ void VertexBuffer::Create(const UINT size, const UINT stride) {
 
 	// 実際に頂点リソースを生成する
 	Microsoft::WRL::ComPtr<ID3D12Resource> vertexResource = nullptr;
-	HRESULT hr = dxCommon->GetDevice()->CreateCommittedResource(
+	[[maybe_unused]] HRESULT hr = dxCommon->GetDevice()->CreateCommittedResource(
 	    &uploadHeapProperties, D3D12_HEAP_FLAG_NONE,            // ヒープの設定
 	    &vertexResourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, // リソースの設定
 	    nullptr, IID_PPV_ARGS(&vertexResource));                // リソースの生成

@@ -7,6 +7,7 @@
 #include "WorldTransformEx.h"
 // #include "d3dcompiler.h"
 #include <Windows.h>
+#include <cassert>
 
 using namespace KamataEngine;
 
@@ -95,7 +96,7 @@ Microsoft::WRL::ComPtr<ID3D12Resource> CreateRenderTextureResource(ID3D12Device*
 
 	// 4.RenderTextureResourceの生成
 	Microsoft::WRL::ComPtr<ID3D12Resource> resource = nullptr;
-	HRESULT hr = device->CreateCommittedResource(
+	[[maybe_unused]] HRESULT hr = device->CreateCommittedResource(
 	    &heapProperties,                            // Heapの設定
 	    D3D12_HEAP_FLAG_NONE,                       // Heapの特殊な設定
 	    &resourceDesc,                              // Resourceの設定
@@ -131,7 +132,7 @@ Microsoft::WRL::ComPtr<ID3D12Resource> CreateDepthStencilTextureResource(ID3D12D
 	                                                // ※KamataEngineと合わせた
 
 	Microsoft::WRL::ComPtr<ID3D12Resource> resource = nullptr;
-	HRESULT hr = device->CreateCommittedResource(
+	[[maybe_unused]] HRESULT hr = device->CreateCommittedResource(
 	    &heapProperties,                  // Heapの設定
 	    D3D12_HEAP_FLAG_NONE,             // Heapの特殊な設定★後で変更?
 	    &resourceDesc,                    // Resourceの設定
@@ -169,12 +170,19 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	assert(vs.GetDxcBlob() != nullptr);
 
 	// ピクセルシェイダーの読み込みとコンパイル
-	Shader ps;
-	ps.LoadDxc(L"Resources/shaders/vignettePS.hlsl", L"ps_6_0");
-	assert(ps.GetDxcBlob() != nullptr);
+	Shader TestPs, VignettePs;
+	TestPs.LoadDxc(L"Resources/shaders/TestPS.hlsl", L"ps_6_0");
+	assert(TestPs.GetDxcBlob() != nullptr);
+	VignettePs.LoadDxc(L"Resources/shaders/vignettePS.hlsl", L"ps_6_0");
+	assert(VignettePs.GetDxcBlob() != nullptr);
 
-	PipelineState pipelineState;
-	SetupPipelineState(pipelineState, rs, vs, ps);
+	PipelineState pipelineStateTest, pipelineStateVignette;
+	SetupPipelineState(pipelineStateTest, rs, vs, TestPs);
+	SetupPipelineState(pipelineStateVignette, rs, vs, VignettePs);
+
+	const int changeSetPipelineStateFirst = 1;
+	int changeSetPipelineState = changeSetPipelineStateFirst;
+	const int changeSetPipelineStateMax = 2;
 
 	// リソースの確保含め、頂点情報を柔軟に対応できるようにVertexData構造体を新たに作成する
 	// Vertex4 ⇒ VertexDate に変更して利用する
@@ -339,11 +347,25 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 			break;
 		}
 
+		if (Input::GetInstance()->TriggerKey(DIK_LEFT)) {
+			if (changeSetPipelineState <= changeSetPipelineStateFirst) {
+				changeSetPipelineState = changeSetPipelineStateMax;
+			} else {
+				changeSetPipelineState -= 1;
+			}
+		}
+		if (Input::GetInstance()->TriggerKey(DIK_RIGHT)) {
+			if (changeSetPipelineState >= changeSetPipelineStateMax) {
+				changeSetPipelineState = changeSetPipelineStateFirst;
+			} else {
+				changeSetPipelineState += 1;
+			}
+		}
 		// world変換行列の定数バッファへの転送
-		worldtransform.rotation_.y += 0.005f;//適当な回転角度(ラジアン)
+		worldtransform.rotation_.y += 0.005f; // 適当な回転角度(ラジアン)
 		worldtransform.UpdateMatrix();
 
-		//cameraの更新と定数バッファへの転送
+		// cameraの更新と定数バッファへの転送
 		camera.UpdateMatrix();
 
 		// ここに描画処理を記述する
@@ -399,14 +421,18 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE; // 還移後
 		commandList->ResourceBarrier(1, &barrier);
 
-
-
 		// 描画開始
 		dxCommon->PreDraw();
 
 		// コマンドを積む
-		commandList->SetGraphicsRootSignature(rs.Get());     // RootSignatureの設定
-		commandList->SetPipelineState(pipelineState.Get());  // PSOの設定をする
+		commandList->SetGraphicsRootSignature(rs.Get()); // RootSignatureの設定
+		// PSOの設定をする
+		if (changeSetPipelineState == 1) {
+			commandList->SetPipelineState(pipelineStateTest.Get());//grayscaleのセピア色
+		} else if (changeSetPipelineState == 2) {
+			commandList->SetPipelineState(pipelineStateVignette.Get());//vignetting
+		}
+
 		commandList->IASetVertexBuffers(0, 1, vb.GetView()); // VBVの設定をする
 		commandList->IASetIndexBuffer(ib.GetView());         // IBVの設定をする
 		// トポロジの設定
