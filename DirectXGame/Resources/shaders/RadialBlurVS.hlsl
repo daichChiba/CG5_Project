@@ -1,4 +1,4 @@
-#include "BoxFilter.hlsli"
+#include "RadialBlur.hlsli"
 
 struct VertexShaderInput{
 	float32_t4 position : POSITION0;

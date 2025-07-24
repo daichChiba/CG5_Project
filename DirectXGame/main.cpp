@@ -170,7 +170,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	assert(vs.GetDxcBlob() != nullptr);
 
 	// ピクセルシェイダーの読み込みとコンパイル
-	Shader TestPs, VignettePs, BoxFilterPs, BoxFilter5x5Ps, GaussianFilterPs, LuminanceBasedOutlinePs;
+	Shader TestPs, VignettePs, BoxFilterPs, BoxFilter5x5Ps, GaussianFilterPs, LuminanceBasedOutlinePs, RadialBlurPs;
 	TestPs.LoadDxc(L"Resources/shaders/TestPS.hlsl", L"ps_6_0");
 	assert(TestPs.GetDxcBlob() != nullptr);
 	VignettePs.LoadDxc(L"Resources/shaders/vignettePS.hlsl", L"ps_6_0");
@@ -183,19 +183,24 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	assert(GaussianFilterPs.GetDxcBlob() != nullptr);
 	LuminanceBasedOutlinePs.LoadDxc(L"Resources/shaders/LuminanceBasedOutlinePS.hlsl", L"ps_6_0");
 	assert(LuminanceBasedOutlinePs.GetDxcBlob() != nullptr);
+	RadialBlurPs.LoadDxc(L"Resources/shaders/RadialBlurPS.hlsl", L"ps_6_0");
+	assert(RadialBlurPs.GetDxcBlob() != nullptr);
 
-	PipelineState pipelineStateTest, pipelineStateVignette, pipelineStateBoxFilter, pipelineStateBoxFilter5x5, pipelineStateGaussianFilter, pipelineStateLuminanceBasedOutline;
+	PipelineState pipelineStateTest, pipelineStateVignette, pipelineStateBoxFilter, pipelineStateBoxFilter5x5, pipelineStateGaussianFilter, pipelineStateLuminanceBasedOutline,
+	    pipelineStateRadialBlur;
 	SetupPipelineState(pipelineStateTest, rs, vs, TestPs);
 	SetupPipelineState(pipelineStateVignette, rs, vs, VignettePs);
 	SetupPipelineState(pipelineStateBoxFilter, rs, vs, BoxFilterPs);
 	SetupPipelineState(pipelineStateBoxFilter5x5, rs, vs, BoxFilter5x5Ps);
 	SetupPipelineState(pipelineStateGaussianFilter, rs, vs, GaussianFilterPs);
 	SetupPipelineState(pipelineStateLuminanceBasedOutline, rs, vs, LuminanceBasedOutlinePs);
+	SetupPipelineState(pipelineStateRadialBlur, rs, vs, RadialBlurPs);
+
 
 
 	const int changeSetPipelineStateFirst = 1;
 	int changeSetPipelineState = changeSetPipelineStateFirst;
-	const int changeSetPipelineStateMax = 6;
+	const int changeSetPipelineStateMax = 7;
 
 	// リソースの確保含め、頂点情報を柔軟に対応できるようにVertexData構造体を新たに作成する
 	// Vertex4 ⇒ VertexDate に変更して利用する
@@ -384,7 +389,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
 		if (isStop) {
 			worldtransform.rotation_ = worldtransformRotation;
-			camera.translation_ = {0.0f,10.0f,-10.0f};
+			camera.translation_ = {0.0f,12.0f,-10.0f};
 			camera.rotation_.x = 0.8f;
 		} else {
 			camera.translation_ = cameraPos;
@@ -469,7 +474,10 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 			commandList->SetPipelineState(pipelineStateGaussianFilter.Get()); // GaussianFilter
 		} else if (changeSetPipelineState == 6) {
 			isStop = true;
-			commandList->SetPipelineState(pipelineStateLuminanceBasedOutline.Get()); // GaussianFilter
+			commandList->SetPipelineState(pipelineStateLuminanceBasedOutline.Get()); // LuminanceBasedOutline
+		} else if (changeSetPipelineState ==7) {
+			isStop = true;
+			commandList->SetPipelineState(pipelineStateRadialBlur.Get()); // RadialBlur
 		}
 
 		commandList->IASetVertexBuffers(0, 1, vb.GetView()); // VBVの設定をする

@@ -1,4 +1,4 @@
-#include "Test.hlsli"
+#include "GaussianFilter.hlsli"
 
 struct VertexShaderInput{
 	float32_t4 position : POSITION0;

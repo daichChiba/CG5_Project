@@ -1,4 +1,4 @@
-#include "Test.hlsli"
+#include "Vignette.hlsli"
 
 Texture2D<float32_t4> gTexture : register(t0); //SRV register=>t
 SamplerState gSampler : register(s0); //Sampler register=>s
