@@ -170,7 +170,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	assert(vs.GetDxcBlob() != nullptr);
 
 	// ピクセルシェイダーの読み込みとコンパイル
-	Shader TestPs, VignettePs,BoxFilterPs,BoxFilter5x5Ps;
+	Shader TestPs, VignettePs,BoxFilterPs,BoxFilter5x5Ps,GaussianFilterPs;
 	TestPs.LoadDxc(L"Resources/shaders/TestPS.hlsl", L"ps_6_0");
 	assert(TestPs.GetDxcBlob() != nullptr);
 	VignettePs.LoadDxc(L"Resources/shaders/vignettePS.hlsl", L"ps_6_0");
@@ -179,16 +179,20 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	assert(BoxFilterPs.GetDxcBlob() != nullptr);
 	BoxFilter5x5Ps.LoadDxc(L"Resources/shaders/BoxFilter5x5PS.hlsl", L"ps_6_0");
 	assert(BoxFilter5x5Ps.GetDxcBlob() != nullptr);
+	GaussianFilterPs.LoadDxc(L"Resources/shaders/GaussianFilterPS.hlsl", L"ps_6_0");
+	assert(GaussianFilterPs.GetDxcBlob() != nullptr);
 
-	PipelineState pipelineStateTest, pipelineStateVignette, pipelineStateBoxFilter, pipelineStateBoxFilter5x5;
+	PipelineState pipelineStateTest, pipelineStateVignette, pipelineStateBoxFilter, pipelineStateBoxFilter5x5, pipelineStateGaussianFilter;
 	SetupPipelineState(pipelineStateTest, rs, vs, TestPs);
 	SetupPipelineState(pipelineStateVignette, rs, vs, VignettePs);
 	SetupPipelineState(pipelineStateBoxFilter, rs, vs, BoxFilterPs);
 	SetupPipelineState(pipelineStateBoxFilter5x5, rs, vs, BoxFilter5x5Ps);
+	SetupPipelineState(pipelineStateGaussianFilter, rs, vs, GaussianFilterPs);
+
 
 	const int changeSetPipelineStateFirst = 1;
 	int changeSetPipelineState = changeSetPipelineStateFirst;
-	const int changeSetPipelineStateMax = 4;
+	const int changeSetPipelineStateMax = 5;
 
 	// リソースの確保含め、頂点情報を柔軟に対応できるようにVertexData構造体を新たに作成する
 	// Vertex4 ⇒ VertexDate に変更して利用する
@@ -441,6 +445,8 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 			commandList->SetPipelineState(pipelineStateBoxFilter.Get()); // BoxFilter
 		} else if (changeSetPipelineState == 4) {
 			commandList->SetPipelineState(pipelineStateBoxFilter5x5.Get());// BoxFilter5x5
+		} else if (changeSetPipelineState == 5) {
+			commandList->SetPipelineState(pipelineStateGaussianFilter.Get()); // GaussianFilter
 		}
 
 		commandList->IASetVertexBuffers(0, 1, vb.GetView()); // VBVの設定をする
