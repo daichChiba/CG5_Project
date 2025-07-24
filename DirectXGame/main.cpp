@@ -170,7 +170,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	assert(vs.GetDxcBlob() != nullptr);
 
 	// ピクセルシェイダーの読み込みとコンパイル
-	Shader TestPs, VignettePs,BoxFilterPs,BoxFilter5x5Ps,GaussianFilterPs;
+	Shader TestPs, VignettePs, BoxFilterPs, BoxFilter5x5Ps, GaussianFilterPs, LuminanceBasedOutlinePs;
 	TestPs.LoadDxc(L"Resources/shaders/TestPS.hlsl", L"ps_6_0");
 	assert(TestPs.GetDxcBlob() != nullptr);
 	VignettePs.LoadDxc(L"Resources/shaders/vignettePS.hlsl", L"ps_6_0");
@@ -181,18 +181,21 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	assert(BoxFilter5x5Ps.GetDxcBlob() != nullptr);
 	GaussianFilterPs.LoadDxc(L"Resources/shaders/GaussianFilterPS.hlsl", L"ps_6_0");
 	assert(GaussianFilterPs.GetDxcBlob() != nullptr);
+	LuminanceBasedOutlinePs.LoadDxc(L"Resources/shaders/LuminanceBasedOutlinePS.hlsl", L"ps_6_0");
+	assert(LuminanceBasedOutlinePs.GetDxcBlob() != nullptr);
 
-	PipelineState pipelineStateTest, pipelineStateVignette, pipelineStateBoxFilter, pipelineStateBoxFilter5x5, pipelineStateGaussianFilter;
+	PipelineState pipelineStateTest, pipelineStateVignette, pipelineStateBoxFilter, pipelineStateBoxFilter5x5, pipelineStateGaussianFilter, pipelineStateLuminanceBasedOutline;
 	SetupPipelineState(pipelineStateTest, rs, vs, TestPs);
 	SetupPipelineState(pipelineStateVignette, rs, vs, VignettePs);
 	SetupPipelineState(pipelineStateBoxFilter, rs, vs, BoxFilterPs);
 	SetupPipelineState(pipelineStateBoxFilter5x5, rs, vs, BoxFilter5x5Ps);
 	SetupPipelineState(pipelineStateGaussianFilter, rs, vs, GaussianFilterPs);
+	SetupPipelineState(pipelineStateLuminanceBasedOutline, rs, vs, LuminanceBasedOutlinePs);
 
 
 	const int changeSetPipelineStateFirst = 1;
 	int changeSetPipelineState = changeSetPipelineStateFirst;
-	const int changeSetPipelineStateMax = 5;
+	const int changeSetPipelineStateMax = 6;
 
 	// リソースの確保含め、頂点情報を柔軟に対応できるようにVertexData構造体を新たに作成する
 	// Vertex4 ⇒ VertexDate に変更して利用する
@@ -345,6 +348,8 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	worldtransform.Initialize();
 	worldtransform.scale_ = Vector3(1.0f, 1.0f, 1.0f);
 
+	const Vector3 worldtransformRotation = worldtransform.rotation_;
+
 	// カメラの準備
 	Camera camera;
 	camera.Initialize();
@@ -378,6 +383,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		worldtransform.UpdateMatrix();
 
 		if (isStop) {
+			worldtransform.rotation_ = worldtransformRotation;
 			camera.translation_ = {0.0f,10.0f,-10.0f};
 			camera.rotation_.x = 0.8f;
 		} else {
@@ -461,6 +467,9 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		} else if (changeSetPipelineState == 5) {
 			isStop = true;
 			commandList->SetPipelineState(pipelineStateGaussianFilter.Get()); // GaussianFilter
+		} else if (changeSetPipelineState == 6) {
+			isStop = true;
+			commandList->SetPipelineState(pipelineStateLuminanceBasedOutline.Get()); // GaussianFilter
 		}
 
 		commandList->IASetVertexBuffers(0, 1, vb.GetView()); // VBVの設定をする
