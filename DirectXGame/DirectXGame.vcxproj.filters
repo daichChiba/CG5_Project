@@ -21,25 +21,25 @@
     <ClCompile Include="main.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Shader.cpp">
+    <ClCompile Include="Programs\Shader.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="MiscUtility.cpp">
+    <ClCompile Include="Programs\MiscUtility.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="RootSignature.cpp">
+    <ClCompile Include="Programs\RootSignature.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="PipelineState.cpp">
+    <ClCompile Include="Programs\PipelineState.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="VertexBuffer.cpp">
+    <ClCompile Include="Programs\VertexBuffer.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="IndexBuffer.cpp">
+    <ClCompile Include="Programs\IndexBuffer.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="WorldTransformEx.cpp">
+    <ClCompile Include="Programs\WorldTransformEx.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>
@@ -117,25 +117,25 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Shader.h">
+    <ClInclude Include="Programs\Shader.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="MiscUtility.h">
+    <ClInclude Include="Programs\MiscUtility.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="RootSignature.h">
+    <ClInclude Include="Programs\RootSignature.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="PipelineState.h">
+    <ClInclude Include="Programs\PipelineState.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="VertexBuffer.h">
+    <ClInclude Include="Programs\VertexBuffer.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="IndexBuffer.h">
+    <ClInclude Include="Programs\IndexBuffer.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="WorldTransformEx.h">
+    <ClInclude Include="Programs\WorldTransformEx.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>

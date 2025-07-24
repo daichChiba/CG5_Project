@@ -1,10 +1,10 @@
-#include "IndexBuffer.h"
+#include "Programs/IndexBuffer.h"
 #include "KamataEngine.h"
-#include "PipelineState.h"
-#include "RootSignature.h"
-#include "Shader.h"
-#include "VertexBuffer.h"
-#include "WorldTransformEx.h"
+#include "Programs/PipelineState.h"
+#include "Programs/RootSignature.h"
+#include "Programs/Shader.h"
+#include "Programs/VertexBuffer.h"
+#include "Programs/WorldTransformEx.h"
 // #include "d3dcompiler.h"
 #include <Windows.h>
 #include <cassert>

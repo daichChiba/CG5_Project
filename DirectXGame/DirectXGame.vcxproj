@@ -116,14 +116,14 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll"       "$(Target
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="IndexBuffer.cpp" />
+    <ClCompile Include="Programs\IndexBuffer.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="MiscUtility.cpp" />
-    <ClCompile Include="PipelineState.cpp" />
-    <ClCompile Include="RootSignature.cpp" />
-    <ClCompile Include="Shader.cpp" />
-    <ClCompile Include="VertexBuffer.cpp" />
-    <ClCompile Include="WorldTransformEx.cpp" />
+    <ClCompile Include="Programs\MiscUtility.cpp" />
+    <ClCompile Include="Programs\PipelineState.cpp" />
+    <ClCompile Include="Programs\RootSignature.cpp" />
+    <ClCompile Include="Programs\Shader.cpp" />
+    <ClCompile Include="Programs\VertexBuffer.cpp" />
+    <ClCompile Include="Programs\WorldTransformEx.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Resources\shaders\BoxFilter5x5PS.hlsl">
@@ -234,13 +234,13 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll"       "$(Target
     <None Include="Resources\shaders\Sprite.hlsli" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="IndexBuffer.h" />
-    <ClInclude Include="MiscUtility.h" />
-    <ClInclude Include="PipelineState.h" />
-    <ClInclude Include="RootSignature.h" />
-    <ClInclude Include="Shader.h" />
-    <ClInclude Include="VertexBuffer.h" />
-    <ClInclude Include="WorldTransformEx.h" />
+    <ClInclude Include="Programs\IndexBuffer.h" />
+    <ClInclude Include="Programs\MiscUtility.h" />
+    <ClInclude Include="Programs\PipelineState.h" />
+    <ClInclude Include="Programs\RootSignature.h" />
+    <ClInclude Include="Programs\Shader.h" />
+    <ClInclude Include="Programs\VertexBuffer.h" />
+    <ClInclude Include="Programs\WorldTransformEx.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
