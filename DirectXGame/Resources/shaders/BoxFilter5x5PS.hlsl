@@ -4,8 +4,7 @@ Texture2D<float32_t4> gTexture : register(t0); //SRV register=>t
 SamplerState gSampler : register(s0); //Sampler register=>s
 
 // 5x5のインデックスオフセット
-static const float32_t2 kIndex5x5[5][5] =
-{
+static const float32_t2 kIndex5x5[5][5] ={
     { { -2.0f, -2.0f }, { -1.0f, -2.0f }, { 0.0f, -2.0f }, { 1.0f, -2.0f }, { 2.0f, -2.0f } },
     { { -2.0f, -1.0f }, { -1.0f, -1.0f }, { 0.0f, -1.0f }, { 1.0f, -1.0f }, { 2.0f, -1.0f } },
     { { -2.0f, 0.0f }, { -1.0f, 0.0f }, { 0.0f, 0.0f }, { 1.0f, 0.0f }, { 2.0f, 0.0f } },
@@ -14,8 +13,7 @@ static const float32_t2 kIndex5x5[5][5] =
 };
 
 // 5x5のカーネル (全ての要素が1/25)
-static const float32_t kKernel5x5[5][5] =
-{
+static const float32_t kKernel5x5[5][5] ={
     { 1.0f / 25.0f, 1.0f / 25.0f, 1.0f / 25.0f, 1.0f / 25.0f, 1.0f / 25.0f },
     { 1.0f / 25.0f, 1.0f / 25.0f, 1.0f / 25.0f, 1.0f / 25.0f, 1.0f / 25.0f },
     { 1.0f / 25.0f, 1.0f / 25.0f, 1.0f / 25.0f, 1.0f / 25.0f, 1.0f / 25.0f },
@@ -23,13 +21,11 @@ static const float32_t kKernel5x5[5][5] =
     { 1.0f / 25.0f, 1.0f / 25.0f, 1.0f / 25.0f, 1.0f / 25.0f, 1.0f / 25.0f }
 };
 
-struct PixelShaderOutput
-{
+struct PixelShaderOutput{
     float32_t4 color : SV_TARGET0;
 };
 
-PixelShaderOutput main(VertexShaderOutput input)
-{
+PixelShaderOutput main(VertexShaderOutput input){
     uint32_t width, height;
     gTexture.GetDimensions(width, height);
     float32_t2 uvStepSize = float32_t2(rcp(width), rcp(height));

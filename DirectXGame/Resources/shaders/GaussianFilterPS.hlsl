@@ -42,10 +42,8 @@ PixelShaderOutput main(VertexShaderOutput input){
     PixelShaderOutput output;
     output.color.rgb = float32_t3(0.0f, 0.0f, 0.0f);
     output.color.a = 1.0f;
-    for (int32_t x = 0; x < 3; ++x)
-    { // 2. 3x3ループ
-        for (int32_t y = 0; y < 3; ++y)
-        {
+    for (int32_t x = 0; x < 3; ++x){ // 2. 3x3ループ
+        for (int32_t y = 0; y < 3; ++y){
             //3.現在のtexcoordを算出
             float32_t2 texcoord = input.texcoord + kIndex3x3[x][y] * uvStepSize;
             //4.色に1/9掛けて足す
