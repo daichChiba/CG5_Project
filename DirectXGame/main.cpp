@@ -350,6 +350,9 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	camera.Initialize();
 	camera.translation_ = Vector3(0.0f, 1.0f, 0.0f);
 
+	bool isStop = false;
+	const Vector3 cameraPos = Vector3(0.0f, 1.0f, 0.0f);
+
 	// メインループ
 	while (true) {
 		// エンジンの更新
@@ -372,8 +375,15 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 			}
 		}
 		// world変換行列の定数バッファへの転送
-		worldtransform.rotation_.y += 0.005f; // 適当な回転角度(ラジアン)
 		worldtransform.UpdateMatrix();
+
+		if (isStop) {
+			camera.translation_ = {0.0f,10.0f,-10.0f};
+			camera.rotation_.x = 0.8f;
+		} else {
+			camera.translation_ = cameraPos;
+			camera.rotation_.x = 0.0f;
+		}
 
 		// cameraの更新と定数バッファへの転送
 		camera.UpdateMatrix();
@@ -438,14 +448,18 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		commandList->SetGraphicsRootSignature(rs.Get()); // RootSignatureの設定
 		// PSOの設定をする
 		if (changeSetPipelineState == 1) {
+			isStop = false;
+			worldtransform.rotation_.y += 0.005f; // 適当な回転角度(ラジアン)
 			commandList->SetPipelineState(pipelineStateTest.Get());//grayscaleのセピア色
 		} else if (changeSetPipelineState == 2) {
+			isStop = true;
 			commandList->SetPipelineState(pipelineStateVignette.Get());//vignetting
 		} else if (changeSetPipelineState == 3) {
 			commandList->SetPipelineState(pipelineStateBoxFilter.Get()); // BoxFilter
 		} else if (changeSetPipelineState == 4) {
 			commandList->SetPipelineState(pipelineStateBoxFilter5x5.Get());// BoxFilter5x5
 		} else if (changeSetPipelineState == 5) {
+			isStop = true;
 			commandList->SetPipelineState(pipelineStateGaussianFilter.Get()); // GaussianFilter
 		}
 
